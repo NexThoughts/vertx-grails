@@ -1,7 +1,10 @@
 package com.vertx
 
 import io.vertx.core.Vertx;
-import io.vertx.ext.web.Router;
+import io.vertx.ext.web.*;
+import io.vertx.ext.jdbc.*;
+import io.vertx.core.json.*;
+import io.vertx.ext.sql.*;
 
 class PublicController {
 
@@ -19,7 +22,7 @@ class PublicController {
         render "Success"
     }
 
-    def one() {
+    def web() {
         def vertx = Vertx.vertx([
                 workerPoolSize: 40
         ])
@@ -44,8 +47,56 @@ class PublicController {
     }
 
 
-    def two() {
+    def jdbc() {
+        def vertx = Vertx.vertx([
+                workerPoolSize: 40
+        ])
+        println "-----0-----------"
 
+        JsonObject config = new JsonObject()
+//                .put("url", "jdbc:mysql:localhost:demo_lending?autoreconnect=true")
+                .put("url", "jdbc:mysql://localhost:3306/demo_lending?autoreconnect=true")
+//        url = "jdbc:mysql://localhost:3306/demo_lending?autoreconnect=true"
+                .put("user", "root")
+                .put("password", "nextdefault")
+                .put("driver_class", "com.mysql.jdbc.Driver")
+                .put("max_pool_size", 30);
+
+        SQLClient client = JDBCClient.createShared(vertx, config);
+        println "-----1-----------" + client
+
+        client.getConnection({ res ->
+
+            println "-----2-----------" + res.properties
+            if (res.failed()) {
+                println "-----2 Failed-----------"
+                println(res.cause().getMessage())
+                return
+            }
+            if (res.succeeded()) {
+                println "-----2.1-----------"
+                SQLConnection connection = res.result();
+                println "-----2.2-----------"
+                connection.query("SELECT * FROM user", { res2 ->
+                    println "-----2.3-----------"
+                    if (res2.succeeded()) {
+                        def rs = res2.result();
+                        rs.results.each { line ->
+                            println('----------' + groovy.json.JsonOutput.toJson(line))
+                        }
+
+                    }
+                });
+            } else {
+
+                println "---- Failed to get connection ------"
+
+                // Failed to get connection - deal with it
+            }
+        });
+        println "-----3-----------"
+
+        render "Success - 2"
     }
 
 }
