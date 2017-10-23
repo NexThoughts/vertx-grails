@@ -17,4 +17,14 @@ class PublicController {
 
         render "Success"
     }
+
+    def one() {
+
+    }
+
+
+    def two() {
+
+    }
+
 }
