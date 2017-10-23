@@ -72,6 +72,9 @@ dependencies {
     testRuntime 'org.seleniumhq.selenium:selenium-htmlunit-driver:2.44.0'
 
     console "org.grails:grails-console"
+
+    compile "io.vertx:vertx-core:3.5.0"
+    compile "io.vertx:vertx-lang-groovy:3.5.0"
 }
 
 task wrapper(type: Wrapper) {
